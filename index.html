@@ -438,37 +438,114 @@
 
   /* Phase-Text Desktop vs Mobile */
   .ph-kurz { display: none; }
+
+  /* ====== MOBILE KARTEN-ANSICHT (ersetzt die Tabelle auf Handy) ====== */
+  .cashflow-cards { display: none; }
+
   @media (max-width: 700px) {
-    .ph-lang { display: none; }
-    .ph-kurz { display: inline; }
+    /* Tabelle komplett aus, Karten sichtbar */
+    .tbl-wrap { display: none; }
+    .cashflow-cards { display: block; }
   }
 
-  /* Mobile: aggressive Anpassung damit keine horizontale Scroll entsteht */
-  @media (max-width: 700px) {
-    .tbl-wrap { overflow-x: hidden; }
-    table.cashflow { font-size: 12.5px; table-layout: fixed; width: 100%; }
-    table.cashflow td, table.cashflow th { padding: 8px 4px; font-size: 12.5px; }
-    table.cashflow th.hide-m, table.cashflow td.hide-m { display: none; }
-    table.cashflow th { font-size: 9.5px; padding: 8px 4px; letter-spacing: 0.04em; }
-    table.cashflow td.mo-num { width: 28px; font-size: 11px; }
-    table.cashflow td.mo-phase {
-      font-size: 11.5px; line-height: 1.3; white-space: normal;
-      padding-right: 4px;
-    }
-    table.cashflow td.mo-net { font-size: 13px; }
-    /* Einnahmen/Kosten enger */
-    table.cashflow td:nth-child(6), table.cashflow th:nth-child(6),
-    table.cashflow td:nth-child(7), table.cashflow th:nth-child(7) {
-      font-size: 11.5px; color: var(--ink-3);
-    }
-    /* Geburtsbadge kompakter */
-    .birth-badge { font-size: 9px; padding: 1px 4px; margin-right: 4px; }
-    .phase-tag { margin-right: 5px; }
+  .cc-year-sep {
+    background: var(--panel);
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-2);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 14px;
   }
-  /* Sehr schmale Screens: auch Einnahmen ausblenden */
-  @media (max-width: 420px) {
-    table.cashflow td.hide-xs, table.cashflow th.hide-xs { display: none; }
+  .cc-year-sep:first-child { margin-top: 0; }
+  .cc-year-sep .cc-year-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink);
   }
+  .cc-year-sep .cc-year-sum {
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .cc-year-sep .cc-year-sum span {
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-right: 4px;
+    font-size: 11px;
+  }
+
+  .cc-row {
+    display: flex;
+    align-items: center;
+    padding: 11px 4px;
+    border-bottom: 1px solid var(--line);
+    gap: 10px;
+  }
+  .cc-row.newborn {
+    background: #fafafa;
+  }
+  .cc-mo {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 22px;
+    letter-spacing: 0.03em;
+  }
+  .cc-row.newborn .cc-mo {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .cc-phase {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .cc-phase .phase-tag {
+    margin-right: 0;
+    flex-shrink: 0;
+  }
+  .cc-phase-text {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cc-birth-badge {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: 1px;
+  }
+  .cc-netto {
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+  .cc-netto.neg { color: var(--neg); }
+
+  /* Desktop: Spalten auf sehr schmalen Breakpoints ausblenden — nicht mehr nötig, da Karten */
+  /* Table bleibt Desktop-only */
 
   /* Phase badge */
   .phase-tag {
@@ -827,7 +904,7 @@
       <span class="dot"></span>Familien-Cashflow
       <span class="by">made by <strong>Chang</strong></span>
     </div>
-    <div class="version">v7.1</div>
+    <div class="version">v7.2</div>
   </div>
 
   <!-- HERO -->
@@ -1053,6 +1130,8 @@
             <tbody id="tbody"></tbody>
           </table>
         </div>
+        <!-- Mobile-Karten-Ansicht (nur < 700px sichtbar) -->
+        <div class="cashflow-cards" id="cashflowCards"></div>
       </div>
 
       <!-- PANEL: CHART -->
@@ -1104,7 +1183,7 @@
     </div>
     <div class="ft-right">
       made by <strong>Chang</strong><br>
-      Version 7.1 — 2026
+      Version 7.2 — 2026
     </div>
   </footer>
 
@@ -1473,8 +1552,9 @@ function render() {
   }
   $('years').innerHTML = yHtml;
 
-  // Tabelle
+  // Tabelle + Mobile-Karten (parallel gebaut)
   let rows = '';
+  let cards = '';
   let currentYear = 0;
   monate.forEach(m => {
     if (m.jahr !== currentYear) {
@@ -1489,14 +1569,22 @@ function render() {
           </td>
         </tr>
       `;
+      cards += `
+        <div class="cc-year-sep">
+          <div class="cc-year-title">Jahr ${currentYear}</div>
+          <div class="cc-year-sum"><span>Summe</span>${fmtSigned(ys)} €</div>
+        </div>
+      `;
     }
     const ph = phaseDesc(m);
     const netNeg = m.netto < 0;
     // Neugeborenen-Badge
     let birthBadge = '';
+    let birthBadgeCard = '';
     if (m.neugeboren) {
       const kidNum = births.indexOf(m.i) + 1;
       birthBadge = `<span class="birth-badge">Kind ${kidNum} geboren</span> `;
+      birthBadgeCard = `<span class="cc-birth-badge">Kind ${kidNum}</span>`;
     }
     rows += `
       <tr${m.neugeboren ? ' class="newborn-row"' : ''}>
@@ -1510,8 +1598,19 @@ function render() {
         <td class="mo-net ${netNeg ? 'neg' : ''}">${fmtSigned(m.netto)} €</td>
       </tr>
     `;
+    cards += `
+      <div class="cc-row${m.neugeboren ? ' newborn' : ''}">
+        <div class="cc-mo">${m.lm}</div>
+        <div class="cc-phase">
+          <span class="phase-tag ${ph.dom}"></span>
+          <span class="cc-phase-text">${birthBadgeCard}${ph.textKurz}</span>
+        </div>
+        <div class="cc-netto ${netNeg ? 'neg' : ''}">${fmtSigned(m.netto)} €</div>
+      </div>
+    `;
   });
   $('tbody').innerHTML = rows;
+  $('cashflowCards').innerHTML = cards;
 
   // Chart
   renderChart(monate, births, ref);
