@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Familien-Cashflow — Monat für Monat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #fafafa;
+    --ink: #0a0a0a;
+    --ink-2: #525252;
+    --ink-3: #a1a1aa;
+    --line: #e5e5e5;
+    --line-2: #d4d4d4;
+    --accent: #0a0a0a;
+    --pos: #15803d;
+    --neg: #b91c1c;
+    --warn-bg: #fffbeb;
+    --warn-bd: #fde68a;
+    --warn-tx: #854d0e;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* niemals kursiv */
+  i, em { font-style: normal; }
+
+  /* ====== LAYOUT ====== */
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 24px 80px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .brand .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+  .brand .by {
+    color: var(--ink-3);
+    font-weight: 400;
+    margin-left: 8px;
+  }
+  .brand .by strong {
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .version {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  /* HEADER */
+  .hero {
+    margin-bottom: 36px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 6vw, 44px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin: 0 0 10px;
+  }
+  .hero p {
+    color: var(--ink-2);
+    font-size: 15.5px;
+    max-width: 620px;
+    margin: 0;
+  }
+
+  /* ====== GRID ====== */
+  .grid {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; gap: 24px; }
+    .page { padding: 20px 18px 60px; }
+  }
+  @media (max-width: 500px) {
+    .page { padding: 16px 14px 60px; }
+    .topbar { margin-bottom: 20px; padding-bottom: 14px; }
+    .hero { margin-bottom: 24px; }
+    .brand .by { display: none; }
+  }
+
+  /* ====== SIDEBAR (INPUTS) ====== */
+  .sidebar {
+    position: sticky;
+    top: 20px;
+  }
+  @media (max-width: 900px) {
+    .sidebar { position: static; }
+  }
+
+  .group {
+    margin-bottom: 24px;
+  }
+  .group:last-child { margin-bottom: 0; }
+
+  .group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .reset-btn {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    padding: 2px 4px;
+    font-family: inherit;
+  }
+  .reset-btn:hover { color: var(--ink); }
+
+  .field {
+    margin-bottom: 14px;
+  }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    font-variant-numeric: tabular-nums;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.12s;
+  }
+  input[type="number"]:focus, select:focus {
+    border-color: var(--ink);
+  }
+  input.invalid { border-color: var(--neg); }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath stroke='%230a0a0a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5l3.5 3.5 3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    padding-right: 32px;
+  }
+
+  /* Slider */
+  .slider-field {
+    margin-bottom: 14px;
+  }
+  .slider-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .slider-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-bd);
+    color: var(--warn-tx);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    margin-top: 12px;
+  }
+  .warn strong { font-weight: 600; }
+
+  .errmsg {
+    color: var(--neg);
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  /* ====== MAIN (RESULTS) ====== */
+
+  /* Year cards */
+  .years {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 500px) {
+    .years { gap: 5px; }
+  }
+  .ycard {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 12px;
+  }
+  @media (max-width: 500px) {
+    .ycard { padding: 11px 8px; border-radius: 8px; }
+  }
+  .ycard .yl {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .ycard .yv {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  @media (max-width: 500px) {
+    .ycard .yv { font-size: 13px; }
+    .ycard .yl { font-size: 9.5px; }
+  }
+  .ycard .ys {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 500px) {
+    .ycard .ys { display: none; }
+  }
+
+  /* Summary bar above table */
+  .sumbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .sumbar-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .sumbar-avg {
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .sumbar-avg strong {
+    color: var(--ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Table */
+  .tbl-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.cashflow {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+  }
+  table.cashflow thead {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 2;
+  }
+  table.cashflow th {
+    text-align: right;
+    padding: 10px 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-2);
+    white-space: nowrap;
+  }
+  table.cashflow th:first-child,
+  table.cashflow th:nth-child(2) { text-align: left; }
+  
+  table.cashflow td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    white-space: nowrap;
+    color: var(--ink-2);
+  }
+  table.cashflow td:first-child,
+  table.cashflow td:nth-child(2) { text-align: left; }
+
+  table.cashflow td.mo-num {
+    color: var(--ink-3);
+    font-weight: 500;
+    width: 40px;
+  }
+  table.cashflow td.mo-phase {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  table.cashflow td.mo-net {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 14.5px;
+  }
+  table.cashflow td.mo-net.neg { color: var(--neg); }
+
+  /* Year separator */
+  table.cashflow tr.year-sep td {
+    background: var(--panel);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px 10px;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-2);
+  }
+  table.cashflow tr.year-sep td .yr-sum {
+    float: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  table.cashflow tr.year-sep td .yr-sum span {
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  /* Mobile: hide some columns */
+  @media (max-width: 700px) {
+    table.cashflow td, table.cashflow th { padding: 9px 6px; font-size: 13px; }
+    table.cashflow th.hide-m, table.cashflow td.hide-m { display: none; }
+    table.cashflow td.mo-phase { font-size: 12.5px; }
+    table.cashflow th { font-size: 9.5px; padding: 9px 5px; }
+  }
+
+  /* Phase badge */
+  .phase-tag {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+  .ph-mutter { background: #f97316; }
+  .ph-eg { background: #3b82f6; }
+  .ph-unbezahlt { background: #dc2626; }
+  .ph-arbeit { background: #22c55e; }
+  .ph-zuhause { background: #a1a1aa; }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.6;
+  }
+  footer .ft-left { max-width: 640px; }
+  footer .ft-right {
+    text-align: right;
+    font-weight: 500;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  footer .ft-right strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 18px 0;
+  }
+
+  /* Kinder-Config */
+  .kids-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: var(--panel);
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .kid-pill {
+    background: transparent;
+    border: none;
+    padding: 9px 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.12s;
+  }
+  .kid-pill.active {
+    background: var(--ink);
+    color: #fff;
+  }
+  .kid-abstand {
+    margin-top: 10px;
+  }
+  .kid-abstand.hidden { display: none; }
+  .kid-label {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .kid-label strong {
+    color: var(--ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Neugeborenen-Badge */
+  .birth-badge {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    vertical-align: 1px;
+  }
+  table.cashflow tr.newborn-row td {
+    background: #fafafa;
+  }
+  table.cashflow tr.newborn-row td.mo-num {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* View-Switcher über der Tabelle */
+  .view-switcher {
+    display: inline-flex;
+    background: var(--panel);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .view-btn {
+    background: transparent;
+    border: none;
+    padding: 7px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .view-btn.active {
+    background: var(--ink);
+    color: #fff;
+  }
+  .view-btn svg {
+    width: 13px;
+    height: 13px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .view-panel { display: none; }
+  .view-panel.active { display: block; }
+
+  /* Chart-Card */
+  .chart-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  @media (max-width: 500px) {
+    .chart-card { padding: 14px 12px; }
+  }
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+  }
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+  .chart-tip {
+    position: absolute;
+    background: var(--ink);
+    color: #fff;
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    white-space: nowrap;
+    z-index: 10;
+    transform: translate(-50%, calc(-100% - 10px));
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-tip .tt-head {
+    color: rgba(255,255,255,0.55);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .chart-tip .tt-big {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .chart-tip .tt-detail {
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .chart-legend .leg {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .chart-legend .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Stat-Kacheln unter Chart */
+  .chart-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+  @media (max-width: 500px) {
+    .chart-stats { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  }
+  .cstat {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .cstat-lbl {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .cstat-val {
+    font-size: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .cstat-val.neg { color: var(--neg); }
+  @media (max-width: 500px) {
+    .cstat-val { font-size: 14px; }
+  }
+
+  /* Referenz-Kachel (Jahr 0 / ohne Kind) */
+  .ycard.ref {
+    background: var(--bg);
+    border-style: dashed;
+    border-color: var(--line-2);
+  }
+  .ycard.ref .yl {
+    color: var(--ink-3);
+  }
+  .ycard.ref .yv {
+    color: var(--ink-2);
+  }
+  .ycard.ref .ys {
+    color: var(--ink-3);
+  }
+
+  /* Referenz-Banner über der Tabelle */
+  .ref-banner {
+    background: var(--bg);
+    border: 1px dashed var(--line-2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .ref-banner .rb-label {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .ref-banner .rb-desc {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    margin-top: 1px;
+  }
+  .ref-banner .rb-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .ref-banner .rb-value .diff {
+    display: block;
+    font-size: 11.5px;
+    color: var(--neg);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    margin-top: 1px;
+    text-align: right;
+  }
+  .ref-banner .rb-value .diff.pos { color: var(--pos); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>Familien-Cashflow
+      <span class="by">made by <strong>Chang</strong></span>
+    </div>
+    <div class="version">v7.0</div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <h1>Was bleibt jeden Monat?</h1>
+    <p>Trag dein Netto ein, wähle Anzahl Kinder, Elternzeit und Arbeit — und sieh für jeden der 60 Monate, was wirklich übrigbleibt. Gesetzeslage Deutschland 2026.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+
+      <!-- EINKOMMEN -->
+      <div class="group">
+        <h3 class="group-title">
+          Einkommen
+          <button class="reset-btn" id="resetBtn">zurücksetzen</button>
+        </h3>
+
+        <div class="field field-pair">
+          <div>
+            <label for="nettoMutter">Netto Mutter</label>
+            <input type="number" id="nettoMutter" value="2400" min="0" max="15000" step="50" inputmode="numeric">
+          </div>
+          <div>
+            <label for="nettoVater">Netto Vater</label>
+            <input type="number" id="nettoVater" value="3200" min="0" max="15000" step="50" inputmode="numeric">
+          </div>
+        </div>
+        <div class="errmsg" id="inpErr" style="display:none"></div>
+
+        <div class="field field-pair">
+          <div>
+            <label for="stkMutter">Steuerklasse M.</label>
+            <select id="stkMutter">
+              <option value="1">I</option>
+              <option value="2">II</option>
+              <option value="3" selected>III</option>
+              <option value="4">IV</option>
+              <option value="5">V</option>
+            </select>
+          </div>
+          <div>
+            <label for="stkVater">Steuerklasse V.</label>
+            <select id="stkVater">
+              <option value="1">I</option>
+              <option value="3">III</option>
+              <option value="4" selected>IV</option>
+              <option value="5">V</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- KINDER -->
+      <div class="group">
+        <h3 class="group-title">Kinder</h3>
+        <div class="kids-row" id="kidsRow">
+          <button class="kid-pill active" data-kids="1">1 Kind</button>
+          <button class="kid-pill" data-kids="2">2 Kinder</button>
+          <button class="kid-pill" data-kids="3">3 Kinder</button>
+        </div>
+
+        <div class="kid-abstand hidden" id="kid2Abstand">
+          <div class="kid-label">
+            Kind 2 geboren nach <strong><span id="abstand2Val">24</span> Mo</strong>
+          </div>
+          <input type="range" id="abstand2" min="12" max="48" value="24" step="1">
+        </div>
+
+        <div class="kid-abstand hidden" id="kid3Abstand">
+          <div class="kid-label">
+            Kind 3 geboren nach <strong><span id="abstand3Val">48</span> Mo</strong>
+          </div>
+          <input type="range" id="abstand3" min="24" max="60" value="48" step="1">
+        </div>
+      </div>
+
+      <!-- ELTERNZEIT -->
+      <div class="group">
+        <h3 class="group-title">Elternzeit</h3>
+
+        <div class="slider-field">
+          <div class="slider-head">
+            <label for="ezMutter" style="margin:0">Mutter</label>
+            <span class="slider-val" id="ezMutterVal">12 Monate</span>
+          </div>
+          <input type="range" id="ezMutter" min="2" max="36" value="12" step="1">
+        </div>
+
+        <div class="slider-field">
+          <div class="slider-head">
+            <label for="ezVater" style="margin:0">Vater</label>
+            <span class="slider-val" id="ezVaterVal">2 Monate</span>
+          </div>
+          <input type="range" id="ezVater" min="0" max="36" value="2" step="1">
+        </div>
+
+        <div class="warn" id="ezWarn" style="display:none"></div>
+      </div>
+
+      <!-- NACH ELTERNZEIT -->
+      <div class="group">
+        <h3 class="group-title">Arbeit danach</h3>
+
+        <div class="slider-field">
+          <div class="slider-head">
+            <label for="arbMutter" style="margin:0">Mutter</label>
+            <span class="slider-val"><span id="arbMutterVal">75</span> %</span>
+          </div>
+          <input type="range" id="arbMutter" min="0" max="100" value="75" step="5">
+        </div>
+
+        <div class="slider-field">
+          <div class="slider-head">
+            <label for="arbVater" style="margin:0">Vater</label>
+            <span class="slider-val"><span id="arbVaterVal">100</span> %</span>
+          </div>
+          <input type="range" id="arbVater" min="0" max="100" value="100" step="5">
+        </div>
+      </div>
+
+      <!-- NEBENJOB -->
+      <div class="group">
+        <h3 class="group-title">Nebentätigkeit <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-3)">(optional)</span></h3>
+
+        <div class="field field-pair">
+          <div>
+            <label for="nebenMutter">Mutter <span class="label-hint">€/Monat</span></label>
+            <input type="number" id="nebenMutter" value="0" min="0" max="5000" step="50" inputmode="numeric" placeholder="0">
+          </div>
+          <div>
+            <label for="nebenVater">Vater <span class="label-hint">€/Monat</span></label>
+            <input type="number" id="nebenVater" value="0" min="0" max="5000" step="50" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--ink-3);margin-top:8px;line-height:1.45">
+          Minijob bis 603 € (2026), Selbstständigkeit oder zusätzliches Einkommen. Läuft über alle 60 Monate.
+        </div>
+      </div>
+
+      <!-- KOSTEN -->
+      <div class="group">
+        <h3 class="group-title">Kosten fürs Kind</h3>
+
+        <div class="slider-field">
+          <div class="slider-head">
+            <label for="kostenKind" style="margin:0">Pro Monat</label>
+            <span class="slider-val" id="kostenKindVal">700 €</span>
+          </div>
+          <input type="range" id="kostenKind" min="300" max="1500" value="700" step="25">
+        </div>
+
+        <div class="field field-pair">
+          <div>
+            <label for="erstausstattung">Erstausstattung</label>
+            <input type="number" id="erstausstattung" value="2000" min="0" max="10000" step="100" inputmode="numeric">
+          </div>
+          <div>
+            <label for="kita">Kita/Monat</label>
+            <input type="number" id="kita" value="250" min="0" max="1500" step="25" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main>
+
+      <!-- JAHRES-KACHELN -->
+      <div class="years" id="years"></div>
+
+      <!-- SUMMARY BAR -->
+      <div class="sumbar">
+        <div class="sumbar-title">Monat für Monat</div>
+        <div class="sumbar-avg">Ø <strong id="avgVal">0 €</strong> pro Monat über 5 Jahre</div>
+      </div>
+
+      <!-- REFERENZ-BANNER: ohne Kind -->
+      <div class="ref-banner" id="refBanner">
+        <div>
+          <div class="rb-label">Ohne Kind · zum Vergleich</div>
+          <div class="rb-desc" id="refDesc">Netto-Einkommen bei gleicher Arbeitszeit, ohne Mutterschutz/Elternzeit/Kinderkosten</div>
+        </div>
+        <div class="rb-value">
+          <span id="refValue">0 €</span>
+          <span class="diff" id="refDiff">—</span>
+        </div>
+      </div>
+
+      <!-- VIEW-SWITCHER -->
+      <div style="margin-bottom:16px">
+        <div class="view-switcher" id="viewSwitcher">
+          <button class="view-btn active" data-view="table">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            Tabelle
+          </button>
+          <button class="view-btn" data-view="chart">
+            <svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+            Chart
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL: TABLE -->
+      <div class="view-panel active" id="panel-table">
+        <div class="tbl-wrap">
+          <table class="cashflow">
+            <thead>
+              <tr>
+                <th>Mo.</th>
+                <th>Phase</th>
+                <th class="hide-m">Mutter</th>
+                <th class="hide-m">Vater</th>
+                <th class="hide-m">Kindergeld</th>
+                <th>Einn.</th>
+                <th>Kosten</th>
+                <th>Netto</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANEL: CHART -->
+      <div class="view-panel" id="panel-chart">
+        <div class="chart-card">
+          <div class="chart-wrap">
+            <svg class="chart-svg" id="chart" viewBox="0 0 800 340" preserveAspectRatio="none"></svg>
+            <div class="chart-tip" id="chartTip"></div>
+          </div>
+
+          <div class="chart-legend">
+            <div class="leg"><span class="swatch" style="background:#fb923c"></span>Mutterschutz</div>
+            <div class="leg"><span class="swatch" style="background:#3b82f6"></span>Elterngeld</div>
+            <div class="leg"><span class="swatch" style="background:#dc2626"></span>unbezahlt</div>
+            <div class="leg"><span class="swatch" style="background:#22c55e"></span>Arbeit</div>
+            <div class="leg"><span class="swatch" style="background:#a1a1aa"></span>zu Hause</div>
+            <div class="leg"><span class="swatch" style="background:repeating-linear-gradient(90deg,#737373 0,#737373 4px,transparent 4px,transparent 7px);height:2px;margin-top:5px"></span>ohne Kind</div>
+          </div>
+
+          <div class="chart-stats">
+            <div class="cstat">
+              <div class="cstat-lbl">Ø pro Monat</div>
+              <div class="cstat-val" id="statAvg">0 €</div>
+            </div>
+            <div class="cstat">
+              <div class="cstat-lbl">bester Monat</div>
+              <div class="cstat-val" id="statMax">0 €</div>
+            </div>
+            <div class="cstat">
+              <div class="cstat-lbl">schwächster</div>
+              <div class="cstat-val" id="statMin">0 €</div>
+            </div>
+            <div class="cstat">
+              <div class="cstat-lbl">Summe 5 J</div>
+              <div class="cstat-val" id="statSum">0 €</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="ft-left">
+      Orientierungswerte nach deutscher Gesetzeslage (Stand April 2026). Berücksichtigt: Mutterschutz, Basiselterngeld (65 %, min. 300 €, max. 1.800 €), Kindergeld (259 €/Monat), Kita, Kinderkosten. Ersetzt keine individuelle Beratung.
+    </div>
+    <div class="ft-right">
+      made by <strong>Chang</strong><br>
+      Version 7.0 — 2026
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// Familien-Cashflow v3.0 — made by Chang
+const V = '3.0';
+
+const KG = 259;
+const EG_MIN = 300, EG_MAX = 1800, EG_CAP = 2770;
+const MS = 2;          // Monate Mutterschutz nach Geburt
+const POOL = 14;        // max. Elterngeld-Monate für beide zusammen
+const N = 60;           // 5 Jahre
+
+const $ = id => document.getElementById(id);
+
+const INP = {
+  nettoMutter: $('nettoMutter'),
+  nettoVater: $('nettoVater'),
+  stkMutter: $('stkMutter'),
+  stkVater: $('stkVater'),
+  ezMutter: $('ezMutter'),
+  ezVater: $('ezVater'),
+  arbMutter: $('arbMutter'),
+  arbVater: $('arbVater'),
+  kostenKind: $('kostenKind'),
+  erstausstattung: $('erstausstattung'),
+  kita: $('kita'),
+  abstand2: $('abstand2'),
+  abstand3: $('abstand3'),
+  nebenMutter: $('nebenMutter'),
+  nebenVater: $('nebenVater')
+};
+
+// Anzahl Kinder separat (kein Input-Element, sondern State)
+let anzahlKinder = 1;
+
+const DEF = {
+  nettoMutter: 2400, nettoVater: 3200,
+  stkMutter: '3', stkVater: '4',
+  ezMutter: 12, ezVater: 2,
+  arbMutter: 75, arbVater: 100,
+  kostenKind: 700, erstausstattung: 2000, kita: 250,
+  abstand2: 24, abstand3: 48,
+  nebenMutter: 0, nebenVater: 0
+};
+
+// Format
+function fmt(n) {
+  return new Intl.NumberFormat('de-DE', {maximumFractionDigits: 0}).format(Math.round(n));
+}
+function fmtSigned(n) {
+  return (n < 0 ? '−' : '') + fmt(Math.abs(n));
+}
+
+// Steuerklassen-Faktor: wirkt AUFS NETTO vor Geburt, das ins EG einfließt
+// Annahme: Eingegebenes Netto gilt in aktueller Stk. Beim Wechsel auf günstigere
+// Klasse erhöht sich das EG-relevante Netto entsprechend.
+// Referenz ist IV (neutral). Werte aus Elterngeld-Praxistabellen.
+function stkFaktor(stk) {
+  const s = parseInt(stk);
+  if (s === 3) return 1.18;  // deutlich mehr Netto bei Stk III
+  if (s === 5) return 0.80;  // deutlich weniger bei Stk V
+  if (s === 2) return 1.03;  // Alleinerziehend-Entlastung
+  return 1.00;               // I und IV als Referenz
+}
+
+// Einkommensgrenze für Elterngeld ab 2025: 175.000 € zvE
+// Schätzung zvE aus Netto (grober Faktor, da Netto < zvE)
+//   Für Paare: zvE ~ (nettoM + nettoV) × 12 × 1.35 (Daumenregel)
+const EG_EINKOMMENSGRENZE = 175000;
+function ueberschreitetGrenze(nm, nv) {
+  const geschaetzteZvE = (nm + nv) * 12 * 1.35;
+  return geschaetzteZvE > EG_EINKOMMENSGRENZE;
+}
+
+// Elterngeld aus Netto mit Stk-Berücksichtigung
+function eg(netto, stk) {
+  if (!netto || netto <= 0) return EG_MIN;
+  const korrigiertesNetto = netto * stkFaktor(stk);
+  const base = Math.min(korrigiertesNetto, EG_CAP);
+  const rate = base <= 1240 ? Math.min(1.0, 0.67 + Math.max(0, (1240 - base)/20)*0.001) : 0.65;
+  return Math.min(Math.max(base * rate, EG_MIN), EG_MAX);
+}
+
+// Geschwisterbonus: +10% aufs EG, mindestens +75€
+// Gilt wenn weitere Kind(er) im Haushalt: 1 unter 3 oder 2 unter 6
+function hatGeschwisterbonus(aktuellesKindIdx, geschwisterAlterMonate) {
+  // geschwisterAlterMonate: Array mit Alter aller anderen Kinder (ohne aktuelles)
+  const unter3 = geschwisterAlterMonate.filter(a => a >= 0 && a < 36).length;
+  const unter6 = geschwisterAlterMonate.filter(a => a >= 0 && a < 72).length;
+  return unter3 >= 1 || unter6 >= 2;
+}
+
+function mitBonus(egBetrag) {
+  const bonus = Math.max(egBetrag * 0.10, 75);
+  return egBetrag + bonus;
+}
+
+function readInputs() {
+  const errs = [];
+  function clamp(el, min, max) {
+    let v = parseFloat(el.value);
+    let inv = false;
+    if (isNaN(v)) v = 0;
+    if (v < min) { v = min; inv = true; }
+    if (v > max) { v = max; inv = true; }
+    el.classList.toggle('invalid', inv);
+    return { value: v, invalid: inv };
+  }
+  const nm = clamp(INP.nettoMutter, 0, 15000);
+  const nv = clamp(INP.nettoVater, 0, 15000);
+  const erst = clamp(INP.erstausstattung, 0, 10000);
+  const kita = clamp(INP.kita, 0, 1500);
+  const nbM = clamp(INP.nebenMutter, 0, 5000);
+  const nbV = clamp(INP.nebenVater, 0, 5000);
+  if (nm.invalid || nv.invalid) errs.push('Netto 0–15.000 €.');
+  if (erst.invalid) errs.push('Erstausstattung 0–10.000 €.');
+  if (kita.invalid) errs.push('Kita 0–1.500 €.');
+  if (nbM.invalid || nbV.invalid) errs.push('Nebenjob 0–5.000 €.');
+
+  const err = $('inpErr');
+  if (errs.length) { err.textContent = 'Angepasst: ' + errs.join(' '); err.style.display = 'block'; }
+  else err.style.display = 'none';
+
+  return {
+    nm: nm.value, nv: nv.value,
+    stkM: parseInt(INP.stkMutter.value) || 4,
+    stkV: parseInt(INP.stkVater.value) || 4,
+    ezM: parseInt(INP.ezMutter.value) || 2,
+    ezV: parseInt(INP.ezVater.value) || 0,
+    arbM: (parseInt(INP.arbMutter.value) || 0) / 100,  // Slider 0-100 → 0-1.0
+    arbV: (parseInt(INP.arbVater.value) || 0) / 100,
+    kostenBasis: parseFloat(INP.kostenKind.value) || 300,
+    erst: erst.value,
+    kita: kita.value,
+    anzahl: anzahlKinder,
+    ab2: parseInt(INP.abstand2.value) || 24,
+    ab3: parseInt(INP.abstand3.value) || 48,
+    nbM: nbM.value,
+    nbV: nbV.value
+  };
+}
+
+// Kernmodell: liefert Array aus 60 Monaten mit Details
+// Logik für mehrere Kinder:
+//   - Geburten: Kind 1 in Monat 1, Kind 2 in Monat ab2+1, Kind 3 in Monat ab3+1
+//   - Pro Kind: 2 Mo Mutterschutz + Elterngeld für (ezM-2) Mo
+//   - Vater bekommt Elterngeld pro Kind, gegenseitig unabhängig
+//   - Laufende Kind-Phasen können überlappen — ein neues Kind startet einen neuen Zyklus
+//     und überschreibt die Phase der Mutter (neue Schwangerschaft beendet EZ automatisch)
+//   - Kindergeld: addiert sich pro geborenem Kind
+//   - Kosten: addieren sich pro geborenem Kind (Basis + Kita nach Alter)
+// Referenz: "ohne Kind" — Netto/Monat wenn's das Kind/die Kinder nicht gäbe
+// Beide Elternteile arbeiten voll weiter, Nebenjobs laufen weiter, keine Kinderkosten
+function refMonatlich(v) {
+  return v.nm + v.nv + v.nbM + v.nbV;
+}
+
+function build(v) {
+  const births = [0];
+  if (v.anzahl >= 2) births.push(v.ab2);
+  if (v.anzahl >= 3) births.push(v.ab3);
+
+  const monate = [];
+  // Elterngeld-Basis pro Person (mit Stk-Faktor aus dem Netto)
+  const egMutterBasis = eg(v.nm, v.stkM);
+  const egVaterBasis = eg(v.nv, v.stkV);
+
+  const geburten = births.map(start => {
+    const mP = Math.min(v.ezM, POOL);
+    const vV = Math.max(0, POOL - mP);
+    const vEM = Math.min(v.ezV, vV);
+    return { start, mutterPool: mP, vaterEgMo: vEM };
+  });
+
+  for (let i = 0; i < N; i++) {
+    // Aktuelle Geburt (letzte, deren Start ≤ i)
+    let aktuelleGeburt = null;
+    let aktGeburtIdx = -1;
+    for (let g = geburten.length - 1; g >= 0; g--) {
+      if (i >= geburten[g].start) { aktuelleGeburt = geburten[g]; aktGeburtIdx = g; break; }
+    }
+
+    // Alter aller Geschwister (ohne aktuelles Kind) in Monaten
+    const geschwisterAlter = births
+      .map((b, idx) => ({ idx, alter: i - b }))
+      .filter(x => x.idx !== aktGeburtIdx && x.alter >= 0)
+      .map(x => x.alter);
+    const bonusAktiv = aktuelleGeburt && hatGeschwisterbonus(aktGeburtIdx, geschwisterAlter);
+
+    // EG-Beträge dieses Monats (mit Bonus, wenn aktiv)
+    const egM = bonusAktiv ? mitBonus(egMutterBasis) : egMutterBasis;
+    const egV = bonusAktiv ? mitBonus(egVaterBasis) : egVaterBasis;
+
+    // Mutter
+    let mE = 0, mS = 'arbeit';
+    if (aktuelleGeburt) {
+      const rel = i - aktuelleGeburt.start;
+      if (rel < MS) { mE = v.nm; mS = 'mutter'; }
+      else if (rel < aktuelleGeburt.mutterPool) { mE = egM; mS = 'eg'; }
+      else if (rel < v.ezM) { mE = 0; mS = 'unbezahlt'; }
+      else { mE = v.nm * v.arbM; mS = v.arbM > 0 ? 'arbeit' : 'zuhause'; }
+    } else {
+      mE = v.nm * v.arbM; mS = v.arbM > 0 ? 'arbeit' : 'zuhause';
+    }
+    // Nebenjob läuft immer durch (solange keine Mutterschutz-Phase)
+    // In Mutterschutz keinen Nebenjob (Beschäftigungsverbot)
+    if (mS !== 'mutter') mE += v.nbM;
+
+    // Vater
+    let vE = 0, vS = 'arbeit';
+    if (aktuelleGeburt) {
+      const rel = i - aktuelleGeburt.start;
+      if (rel < aktuelleGeburt.vaterEgMo) { vE = egV; vS = 'eg'; }
+      else if (rel < v.ezV) { vE = 0; vS = 'unbezahlt'; }
+      else { vE = v.nv * v.arbV; vS = v.arbV > 0 ? 'arbeit' : 'zuhause'; }
+    } else {
+      vE = v.nv * v.arbV; vS = v.arbV > 0 ? 'arbeit' : 'zuhause';
+    }
+    vE += v.nbV;
+
+    const lebend = births.filter(b => b <= i).length;
+    const kg = KG * lebend;
+
+    let kosten = 0;
+    births.forEach((bStart, idx) => {
+      if (bStart > i) return;
+      const alter = i - bStart;
+      let k;
+      if (alter < 12) k = v.kostenBasis;
+      else if (alter < 36) k = v.kostenBasis + v.kita;
+      else k = v.kostenBasis * 1.05 + v.kita * 0.6;
+      if (alter === 0) k += idx === 0 ? v.erst : v.erst * 0.5;
+      kosten += k;
+    });
+
+    monate.push({
+      i, lm: i+1, jahr: Math.floor(i/12)+1,
+      mE, mS, vE, vS, kg, kosten, einn: mE+vE+kg, netto: mE+vE+kg-kosten,
+      lebend, neugeboren: births.includes(i), bonusAktiv
+    });
+  }
+
+  return { monate, egM: egMutterBasis, egV: egVaterBasis, births };
+}
+
+// Phasenbeschreibung hübsch
+function phaseDesc(m) {
+  const parts = [];
+  const label = { mutter:'Mutterschutz', eg:'Elterngeld', unbezahlt:'unbezahlt', arbeit:'arbeitet', zuhause:'zu Hause' };
+  const color = { mutter:'ph-mutter', eg:'ph-eg', unbezahlt:'ph-unbezahlt', arbeit:'ph-arbeit', zuhause:'ph-zuhause' };
+
+  // dominante Phase für den Punkt
+  const prio = ['mutter','unbezahlt','eg','zuhause','arbeit'];
+  let dom = 'arbeit';
+  for (const p of prio) if (m.mS === p || m.vS === p) { dom = p; break; }
+
+  // Kurzform: „Mutter Elterngeld · Vater arbeitet"
+  const mT = m.mS === 'arbeit' && m.mE === 0 ? '' : `M: ${label[m.mS]}`;
+  const vT = m.vS === 'arbeit' ? `V: arbeitet` : `V: ${label[m.vS]}`;
+
+  let text;
+  if (m.mS === 'mutter' && m.vS === 'eg') text = 'Mutterschutz · Vater Elterngeld';
+  else if (m.mS === 'eg' && m.vS === 'arbeit') text = 'Mutter Elterngeld · Vater arbeitet';
+  else if (m.mS === 'arbeit' && m.vS === 'arbeit') text = 'Beide arbeiten';
+  else if (m.mS === 'zuhause' && m.vS === 'arbeit') text = 'Mutter zu Hause · Vater arbeitet';
+  else if (m.mS === 'unbezahlt' && m.vS === 'arbeit') text = 'Mutter unbezahlt · Vater arbeitet';
+  else if (m.mS === 'arbeit' && m.vS === 'eg') text = 'Mutter arbeitet · Vater Elterngeld';
+  else if (m.mS === 'arbeit' && m.vS === 'unbezahlt') text = 'Mutter arbeitet · Vater unbezahlt';
+  else text = `${mT}${mT && vT ? ' · ' : ''}${vT}`;
+
+  return { dom: color[dom], text };
+}
+
+function render() {
+  const v = readInputs();
+  const { monate, births } = build(v);
+
+  // Slider-Werte
+  $('ezMutterVal').textContent = v.ezM + ' Monat' + (v.ezM === 1 ? '' : 'e');
+  $('ezVaterVal').textContent = v.ezV + ' Monat' + (v.ezV === 1 ? '' : 'e');
+  $('kostenKindVal').textContent = fmt(v.kostenBasis) + ' €';
+  $('abstand2Val').textContent = v.ab2;
+  $('abstand3Val').textContent = v.ab3;
+  $('arbMutterVal').textContent = Math.round(v.arbM * 100);
+  $('arbVaterVal').textContent = Math.round(v.arbV * 100);
+
+  // Warnung: Einkommensgrenze, EZ-Überschreitungen, etc.
+  let warn = '';
+  if (ueberschreitetGrenze(v.nm, v.nv)) {
+    warn = `<strong>Kein Elterngeld-Anspruch:</strong> Euer geschätztes zu versteuerndes Jahreseinkommen liegt über 175.000 € — damit entfällt der Elterngeld-Anspruch komplett. Die Berechnung oben nutzt trotzdem EG-Werte (für Planungszwecke).`;
+  }
+  if (v.ezV > POOL) {
+    warn += (warn ? '<br>' : '') + `<strong>Vater:</strong> mehr als 14 Mo. EZ — ab Monat 15 unbezahlt.`;
+  }
+  if (v.ezM > POOL) {
+    warn += (warn ? '<br>' : '') + `<strong>Mutter:</strong> ab Monat 15 unbezahlt (pro Kind).`;
+  }
+  if (v.anzahl >= 3 && v.ab3 <= v.ab2) {
+    warn += (warn ? '<br>' : '') + `<strong>Achtung:</strong> Kind 3 vor Kind 2? Bitte Abstand anpassen.`;
+  }
+  // Stk-Tipp nur zeigen, wenn Mutter nicht schon Stk III hat UND Netto > 1200
+  if (v.stkM !== 3 && v.nm > 1200) {
+    warn += (warn ? '<br>' : '') + `<strong>💡 Tipp:</strong> Mutter in Stk III → ~${Math.round((stkFaktor(3)/stkFaktor(v.stkM)-1)*100)} % mehr Elterngeld.`;
+  }
+  // Geschwisterbonus-Info
+  if (v.anzahl >= 2) {
+    warn += (warn ? '<br>' : '') + `<strong>✓ Geschwisterbonus aktiv:</strong> +10 % Elterngeld (min. +75 €), wenn älteres Kind noch unter 3.`;
+  }
+  // Nebenjob-Minijob-Grenze 2026
+  if (v.nbM > 603 || v.nbV > 603) {
+    warn += (warn ? '<br>' : '') + `<strong>ℹ️ Nebenjob:</strong> über 603 €/Mo ist kein Minijob mehr — Steuern und Sozialabgaben fallen an. Hier wird netto gerechnet, also einfach Netto-Betrag eingeben.`;
+  }
+  // Warnung: 80% während EZ (≈ 32h-Grenze bei 40h-Basis)
+  // Diese Warnung ist nur relevant WÄHREND EZ, aber hier geben wir sie generell
+  // Die arb-Werte gelten erst NACH EZ, daher kein direkter Konflikt, aber Info
+  const wEl = $('ezWarn');
+  if (warn) { wEl.innerHTML = warn; wEl.style.display = 'block'; }
+  else wEl.style.display = 'none';
+
+  // Jahreskacheln + Summe
+  const nettos = monate.map(m => m.netto);
+  const sum = nettos.reduce((a,b) => a+b, 0);
+  const avg = sum / N;
+
+  // Referenz: ohne Kind
+  const ref = refMonatlich(v);
+
+  $('avgVal').textContent = fmtSigned(avg) + ' €';
+
+  // Referenz-Banner befüllen
+  $('refValue').textContent = fmtSigned(ref) + ' € / Monat';
+  const diff = avg - ref;
+  const diffEl = $('refDiff');
+  if (Math.abs(diff) < 1) {
+    diffEl.textContent = '—';
+    diffEl.className = 'diff';
+  } else if (diff < 0) {
+    diffEl.textContent = `${fmt(Math.abs(diff))} € weniger mit Kind`;
+    diffEl.className = 'diff';
+  } else {
+    diffEl.textContent = `${fmt(Math.abs(diff))} € mehr mit Kind`;
+    diffEl.className = 'diff pos';
+  }
+  // Beschreibung: dynamisch an Anzahl Kinder/Nebenjobs anpassen
+  const refDescText = v.anzahl === 1
+    ? `Beide arbeiten voll weiter — keine Elternzeit, keine Kinderkosten${v.nbM||v.nbV?' (Nebenjobs weiterhin aktiv)':''}.`
+    : `Beide arbeiten voll weiter — keine Elternzeiten, keine Kosten für ${v.anzahl} Kinder${v.nbM||v.nbV?', Nebenjobs aktiv':''}.`;
+  $('refDesc').textContent = refDescText;
+
+  let yHtml = `
+    <div class="ycard ref">
+      <div class="yl">Ohne Kind</div>
+      <div class="yv">${fmtSigned(ref)} €</div>
+      <div class="ys">Ø pro Monat</div>
+    </div>
+  `;
+  for (let y = 1; y <= 5; y++) {
+    const ymo = monate.filter(m => m.jahr === y);
+    const ys = ymo.reduce((a,m) => a + m.netto, 0);
+    const ya = ys / 12;
+    yHtml += `
+      <div class="ycard">
+        <div class="yl">Jahr ${y}</div>
+        <div class="yv">${fmtSigned(ya)} €</div>
+        <div class="ys">Ø pro Monat</div>
+      </div>
+    `;
+  }
+  $('years').innerHTML = yHtml;
+
+  // Tabelle
+  let rows = '';
+  let currentYear = 0;
+  monate.forEach(m => {
+    if (m.jahr !== currentYear) {
+      currentYear = m.jahr;
+      const ymo = monate.filter(x => x.jahr === currentYear);
+      const ys = ymo.reduce((a,x) => a + x.netto, 0);
+      rows += `
+        <tr class="year-sep">
+          <td colspan="8">
+            Jahr ${currentYear}
+            <span class="yr-sum"><span>Summe</span>${fmtSigned(ys)} €</span>
+          </td>
+        </tr>
+      `;
+    }
+    const ph = phaseDesc(m);
+    const netNeg = m.netto < 0;
+    // Neugeborenen-Badge
+    let birthBadge = '';
+    if (m.neugeboren) {
+      const kidNum = births.indexOf(m.i) + 1;
+      birthBadge = `<span class="birth-badge">Kind ${kidNum} geboren</span> `;
+    }
+    rows += `
+      <tr${m.neugeboren ? ' class="newborn-row"' : ''}>
+        <td class="mo-num">${m.lm}</td>
+        <td class="mo-phase"><span class="phase-tag ${ph.dom}"></span>${birthBadge}${ph.text}</td>
+        <td class="hide-m">${fmt(m.mE)} €</td>
+        <td class="hide-m">${fmt(m.vE)} €</td>
+        <td class="hide-m">${fmt(m.kg)} €</td>
+        <td>${fmt(m.einn)} €</td>
+        <td>−${fmt(m.kosten)} €</td>
+        <td class="mo-net ${netNeg ? 'neg' : ''}">${fmtSigned(m.netto)} €</td>
+      </tr>
+    `;
+  });
+  $('tbody').innerHTML = rows;
+
+  // Chart
+  renderChart(monate, births, ref);
+  // Stat-Kacheln im Chart-Panel
+  $('statAvg').textContent = fmtSigned(avg) + ' €';
+  $('statMax').textContent = fmtSigned(Math.max(...nettos)) + ' €';
+  $('statMin').textContent = fmtSigned(Math.min(...nettos)) + ' €';
+  const sumEl = $('statSum');
+  sumEl.textContent = fmtSigned(sum) + ' €';
+  sumEl.classList.toggle('neg', sum < 0);
+}
+
+// ====== CHART ======
+// Professionelles SVG-Liniendiagramm mit Phasenbändern
+function renderChart(monate, births, ref) {
+  const svg = $('chart');
+  const W = 800, H = 340;
+  const pad = { t: 20, r: 16, b: 40, l: 52 };
+  const cW = W - pad.l - pad.r;
+  const cH = H - pad.t - pad.b;
+
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs={}) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  };
+
+  const nettos = monate.map(m => m.netto);
+  // Referenz-Linie in Skala einbeziehen, damit sie sichtbar ist
+  let maxV = Math.max(...nettos, ref || 0, 0);
+  let minV = Math.min(...nettos, 0);
+  const range = maxV - minV || 1;
+  maxV += range * 0.08;
+  minV -= range * 0.05;
+  const totalRange = maxV - minV;
+
+  const x = i => pad.l + (i / (monate.length - 1)) * cW;
+  const y = val => pad.t + ((maxV - val) / totalRange) * cH;
+
+  // --- PHASEN-BÄNDER im Hintergrund (nach Mutter-Status) ---
+  // Segmente mergen
+  const phaseColors = {
+    mutter: '#fb923c', eg: '#3b82f6', unbezahlt: '#dc2626',
+    arbeit: '#22c55e', zuhause: '#a1a1aa'
+  };
+  const segments = [];
+  let segStart = 0;
+  for (let i = 1; i <= monate.length; i++) {
+    if (i === monate.length || monate[i].mS !== monate[segStart].mS) {
+      segments.push({ from: segStart, to: i - 1, status: monate[segStart].mS });
+      segStart = i;
+    }
+  }
+  segments.forEach(s => {
+    const sx = x(s.from) - (cW / monate.length / 2);
+    const ex = x(s.to) + (cW / monate.length / 2);
+    const w = ex - sx;
+    svg.appendChild(el('rect', {
+      x: sx, y: pad.t, width: Math.max(0, w), height: cH,
+      fill: phaseColors[s.status], opacity: 0.08
+    }));
+  });
+
+  // --- Grid-Linien horizontal (y-Achsen) ---
+  const steps = 5;
+  for (let s = 0; s <= steps; s++) {
+    const val = minV + (totalRange * s / steps);
+    const yy = y(val);
+    svg.appendChild(el('line', {
+      x1: pad.l, x2: W - pad.r, y1: yy, y2: yy,
+      stroke: '#e5e5e5', 'stroke-width': 0.8
+    }));
+    const t = el('text', {
+      x: pad.l - 8, y: yy + 3, 'text-anchor': 'end',
+      'font-size': 10, 'font-family': 'Inter, sans-serif',
+      fill: '#a1a1aa', 'font-weight': 500
+    });
+    t.textContent = fmt(Math.round(val / 100) * 100) + ' €';
+    svg.appendChild(t);
+  }
+
+  // Nulllinie betont
+  if (minV < 0 && maxV > 0) {
+    svg.appendChild(el('line', {
+      x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0),
+      stroke: '#737373', 'stroke-width': 1, 'stroke-dasharray': '4 3'
+    }));
+  }
+
+  // --- X-Achse: Jahresmarkierungen ---
+  for (let j = 0; j <= 5; j++) {
+    const monthIdx = j * 12;
+    if (monthIdx > monate.length) continue;
+    const xx = j === 0 ? pad.l : (j === 5 ? W - pad.r : x(Math.min(monthIdx, monate.length-1)));
+    svg.appendChild(el('line', {
+      x1: xx, x2: xx, y1: pad.t, y2: pad.t + cH,
+      stroke: '#e5e5e5', 'stroke-width': 0.8
+    }));
+  }
+  for (let j = 0; j < 5; j++) {
+    const xx = pad.l + ((j + 0.5) * 12 / monate.length) * cW;
+    const t = el('text', {
+      x: xx, y: H - 18, 'text-anchor': 'middle',
+      'font-size': 10.5, 'font-family': 'Inter, sans-serif',
+      fill: '#737373', 'font-weight': 600,
+      'letter-spacing': '0.04em'
+    });
+    t.textContent = `JAHR ${j+1}`;
+    svg.appendChild(t);
+  }
+
+  // --- Geburtsmarker (vertikale Linie) ---
+  births.forEach((b, idx) => {
+    if (b >= monate.length) return;
+    const bx = x(b);
+    svg.appendChild(el('line', {
+      x1: bx, x2: bx, y1: pad.t, y2: pad.t + cH,
+      stroke: '#0a0a0a', 'stroke-width': 1.2, 'stroke-dasharray': '2 3'
+    }));
+    // Kreis oben mit Label
+    svg.appendChild(el('circle', {
+      cx: bx, cy: pad.t - 2, r: 4, fill: '#0a0a0a'
+    }));
+    const t = el('text', {
+      x: bx, y: pad.t - 9, 'text-anchor': 'middle',
+      'font-size': 10, 'font-family': 'Inter, sans-serif',
+      fill: '#0a0a0a', 'font-weight': 600
+    });
+    t.textContent = `Kind ${idx + 1}`;
+    svg.appendChild(t);
+  });
+
+  // --- Referenzlinie "ohne Kind" (dünn, gestrichelt, grau) ---
+  if (ref !== undefined && ref !== null) {
+    const refY = y(ref);
+    svg.appendChild(el('line', {
+      x1: pad.l, x2: W - pad.r, y1: refY, y2: refY,
+      stroke: '#737373', 'stroke-width': 1.2, 'stroke-dasharray': '5 4',
+      opacity: 0.8
+    }));
+    // Label am Ende
+    const refLabel = el('text', {
+      x: W - pad.r - 4, y: refY - 5, 'text-anchor': 'end',
+      'font-size': 10, 'font-family': 'Inter, sans-serif',
+      fill: '#525252', 'font-weight': 600,
+      'letter-spacing': '0.04em'
+    });
+    refLabel.textContent = 'OHNE KIND';
+    svg.appendChild(refLabel);
+  }
+
+  // --- Linie: Netto-Cashflow (area + stroke) ---
+  // Area fill
+  let areaPath = `M ${x(0)} ${y(0)}`;
+  monate.forEach((m, i) => {
+    areaPath += ` L ${x(i)} ${y(m.netto)}`;
+  });
+  areaPath += ` L ${x(monate.length - 1)} ${y(0)} Z`;
+  svg.appendChild(el('path', {
+    d: areaPath, fill: '#0a0a0a', opacity: 0.06
+  }));
+
+  // Linie
+  let linePath = `M ${x(0)} ${y(monate[0].netto)}`;
+  for (let i = 1; i < monate.length; i++) {
+    linePath += ` L ${x(i)} ${y(monate[i].netto)}`;
+  }
+  svg.appendChild(el('path', {
+    d: linePath, fill: 'none', stroke: '#0a0a0a',
+    'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'
+  }));
+
+  // --- Interaktion: Hover/Tap ---
+  const tip = $('chartTip');
+  const hoverDot = el('circle', {
+    cx: 0, cy: 0, r: 5,
+    fill: '#0a0a0a', stroke: '#fff', 'stroke-width': 2,
+    opacity: 0, 'pointer-events': 'none'
+  });
+  svg.appendChild(hoverDot);
+
+  const wrap = svg.parentElement;
+
+  function move(ev) {
+    const rect = svg.getBoundingClientRect();
+    const clientX = ev.clientX ?? (ev.touches && ev.touches[0]?.clientX);
+    if (clientX == null) return;
+    const relX = clientX - rect.left;
+    // Pixel → SVG-Koordinate
+    const svgX = (relX / rect.width) * W;
+    // Finde nächsten Monat
+    const monthFrac = (svgX - pad.l) / cW * (monate.length - 1);
+    const idx = Math.min(monate.length - 1, Math.max(0, Math.round(monthFrac)));
+    const m = monate[idx];
+
+    hoverDot.setAttribute('cx', x(idx));
+    hoverDot.setAttribute('cy', y(m.netto));
+    hoverDot.setAttribute('opacity', '1');
+
+    const statusLabel = {
+      mutter: 'Mutterschutz', eg: 'Elterngeld', unbezahlt: 'unbezahlt',
+      arbeit: 'Arbeit', zuhause: 'zu Hause'
+    };
+    tip.innerHTML = `
+      <div class="tt-head">Monat ${m.lm} · Jahr ${m.jahr}</div>
+      <div class="tt-big">${fmtSigned(m.netto)} €</div>
+      <div class="tt-detail">
+        M: ${statusLabel[m.mS]} · V: ${statusLabel[m.vS]}<br>
+        ${fmt(m.einn)} € Einnahmen − ${fmt(m.kosten)} € Kosten
+      </div>
+    `;
+    // Tooltip positionieren (in Pixel-Koordinaten des wrappers)
+    const svgRatio = rect.width / W;
+    tip.style.left = (x(idx) * svgRatio) + 'px';
+    tip.style.top = (y(m.netto) * (rect.height / H)) + 'px';
+    tip.style.opacity = '1';
+  }
+  function leave() {
+    tip.style.opacity = '0';
+    hoverDot.setAttribute('opacity', '0');
+  }
+  wrap.onmousemove = move;
+  wrap.onmouseleave = leave;
+  wrap.ontouchstart = move;
+  wrap.ontouchmove = (e) => { e.preventDefault(); move(e); };
+  wrap.ontouchend = leave;
+}
+
+// Listener
+Object.values(INP).forEach(el => {
+  if (!el) return;
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+
+// Kinder-Pills
+document.querySelectorAll('#kidsRow .kid-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('#kidsRow .kid-pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    anzahlKinder = parseInt(p.dataset.kids);
+
+    // Abstand-Slider ein-/ausblenden
+    $('kid2Abstand').classList.toggle('hidden', anzahlKinder < 2);
+    $('kid3Abstand').classList.toggle('hidden', anzahlKinder < 3);
+
+    // Automatisch Kind 3 hinter Kind 2 schieben, wenn nötig
+    if (anzahlKinder === 3) {
+      const ab2 = parseInt(INP.abstand2.value) || 24;
+      let ab3 = parseInt(INP.abstand3.value) || 48;
+      if (ab3 <= ab2) {
+        ab3 = Math.min(60, ab2 + 24);
+        INP.abstand3.value = ab3;
+      }
+      // Min für Slider 3 dynamisch nachziehen
+      INP.abstand3.min = Math.max(24, ab2 + 1);
+    }
+
+    render();
+  });
+});
+
+// Abstand 2 ändert min von abstand 3
+INP.abstand2.addEventListener('input', () => {
+  const ab2 = parseInt(INP.abstand2.value) || 24;
+  INP.abstand3.min = Math.max(24, ab2 + 1);
+  if (parseInt(INP.abstand3.value) <= ab2) {
+    INP.abstand3.value = Math.min(60, ab2 + 1);
+  }
+});
+
+// View-Switcher
+document.querySelectorAll('#viewSwitcher .view-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#viewSwitcher .view-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const view = b.dataset.view;
+    $('panel-table').classList.toggle('active', view === 'table');
+    $('panel-chart').classList.toggle('active', view === 'chart');
+    // Chart erneut rendern beim Wechsel (für korrekte Pixel-Maße)
+    if (view === 'chart') render();
+  });
+});
+
+$('resetBtn').addEventListener('click', () => {
+  for (const k in DEF) {
+    if (INP[k]) {
+      INP[k].value = DEF[k];
+      INP[k].classList.remove('invalid');
+    }
+  }
+  // Kinder-Anzahl auf 1 zurück
+  anzahlKinder = 1;
+  document.querySelectorAll('#kidsRow .kid-pill').forEach(x => x.classList.remove('active'));
+  document.querySelector('#kidsRow .kid-pill[data-kids="1"]').classList.add('active');
+  $('kid2Abstand').classList.add('hidden');
+  $('kid3Abstand').classList.add('hidden');
+  render();
+});
+
+render();
+console.log(`Familien-Cashflow v${V} · made by Chang`);
+</script>
+
+</body>
+</html>
