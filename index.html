@@ -258,6 +258,17 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   }
 
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding: 0 2px;
+    font-size: 10.5px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
   .warn {
     background: var(--warn-bg);
     border: 1px solid var(--warn-bd);
@@ -784,11 +795,18 @@
   }
 
   /* Stat-Kacheln unter Chart */
+  .chart-stats-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 20px;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
   .chart-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-    margin-top: 16px;
   }
   @media (max-width: 500px) {
     .chart-stats { grid-template-columns: repeat(2, 1fr); gap: 6px; }
@@ -817,6 +835,13 @@
   .cstat-val.neg { color: var(--neg); }
   @media (max-width: 500px) {
     .cstat-val { font-size: 14px; }
+  }
+  .cstat-sub {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    margin-top: 3px;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
   }
 
   /* Referenz-Kachel (Jahr 0 / ohne Kind) */
@@ -904,7 +929,7 @@
       <span class="dot"></span>Familien-Cashflow
       <span class="by">made by <strong>Chang</strong></span>
     </div>
-    <div class="version">v7.2</div>
+    <div class="version">v7.7</div>
   </div>
 
   <!-- HERO -->
@@ -1069,6 +1094,20 @@
             <input type="number" id="kita" value="250" min="0" max="1500" step="25" inputmode="numeric">
           </div>
         </div>
+
+        <div style="margin-top:14px">
+          <div class="slider-head">
+            <label for="kitaStartInput" style="margin:0">Kita-Start</label>
+            <span class="slider-val">ab Alter <span id="kitaStartVal">12</span> Mo.</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+            <input type="number" id="kitaStartInput" value="12" min="0" max="36" step="1" inputmode="numeric" style="width:72px;text-align:center">
+            <input type="range" id="kitaStart" min="0" max="36" value="12" step="1" style="flex:1">
+          </div>
+          <div class="slider-ticks">
+            <span>0</span><span>12</span><span>24</span><span>36 Mo.</span>
+          </div>
+        </div>
       </div>
 
     </aside>
@@ -1151,22 +1190,27 @@
             <div class="leg"><span class="swatch" style="background:repeating-linear-gradient(90deg,#737373 0,#737373 4px,transparent 4px,transparent 7px);height:2px;margin-top:5px"></span>ohne Kind</div>
           </div>
 
+          <div class="chart-stats-title">Eure finanzielle Planung</div>
           <div class="chart-stats">
             <div class="cstat">
-              <div class="cstat-lbl">Ø pro Monat</div>
+              <div class="cstat-lbl">Euer Einkommen</div>
               <div class="cstat-val" id="statAvg">0 €</div>
+              <div class="cstat-sub">pro Monat · mit Kind</div>
             </div>
             <div class="cstat">
-              <div class="cstat-lbl">bester Monat</div>
-              <div class="cstat-val" id="statMax">0 €</div>
+              <div class="cstat-lbl">Das Kind kostet euch</div>
+              <div class="cstat-val" id="statLoss">0 €</div>
+              <div class="cstat-sub" id="statLossSub">in 5 Jahren insgesamt</div>
             </div>
             <div class="cstat">
-              <div class="cstat-lbl">schwächster</div>
-              <div class="cstat-val" id="statMin">0 €</div>
+              <div class="cstat-lbl">Rücklage empfohlen</div>
+              <div class="cstat-val" id="statReserve">0 €</div>
+              <div class="cstat-sub" id="statReserveSub">für enge Monate</div>
             </div>
             <div class="cstat">
-              <div class="cstat-lbl">Summe 5 J</div>
-              <div class="cstat-val" id="statSum">0 €</div>
+              <div class="cstat-lbl">Davon Kita & Co.</div>
+              <div class="cstat-val" id="statKids">0 €</div>
+              <div class="cstat-sub" id="statKidsSub">laufende Kinderkosten</div>
             </div>
           </div>
         </div>
@@ -1183,7 +1227,7 @@
     </div>
     <div class="ft-right">
       made by <strong>Chang</strong><br>
-      Version 7.2 — 2026
+      Version 7.7 — 2026
     </div>
   </footer>
 
@@ -1213,6 +1257,8 @@ const INP = {
   kostenKind: $('kostenKind'),
   erstausstattung: $('erstausstattung'),
   kita: $('kita'),
+  kitaStart: $('kitaStart'),
+  kitaStartInput: $('kitaStartInput'),
   abstand2: $('abstand2'),
   abstand3: $('abstand3'),
   nebenMutter: $('nebenMutter'),
@@ -1227,7 +1273,7 @@ const DEF = {
   stkMutter: '3', stkVater: '4',
   ezMutter: 12, ezVater: 2,
   arbMutter: 75, arbVater: 100,
-  kostenKind: 700, erstausstattung: 2000, kita: 250,
+  kostenKind: 700, erstausstattung: 2000, kita: 250, kitaStart: 12, kitaStartInput: 12,
   abstand2: 24, abstand3: 48,
   nebenMutter: 0, nebenVater: 0
 };
@@ -1321,6 +1367,10 @@ function readInputs() {
     kostenBasis: parseFloat(INP.kostenKind.value) || 300,
     erst: erst.value,
     kita: kita.value,
+    kitaStart: (() => {
+      const n = parseInt(INP.kitaStart.value);
+      return isNaN(n) ? 12 : Math.max(0, Math.min(36, n));
+    })(),
     anzahl: anzahlKinder,
     ab2: parseInt(INP.abstand2.value) || 24,
     ab3: parseInt(INP.abstand3.value) || 48,
@@ -1414,10 +1464,14 @@ function build(v) {
     births.forEach((bStart, idx) => {
       if (bStart > i) return;
       const alter = i - bStart;
-      let k;
-      if (alter < 12) k = v.kostenBasis;
-      else if (alter < 36) k = v.kostenBasis + v.kita;
-      else k = v.kostenBasis * 1.05 + v.kita * 0.6;
+      // Basis-Kosten: ab Alter 3 leicht erhöht (Kleidung, Aktivitäten, Essen)
+      let basis = alter < 36 ? v.kostenBasis : v.kostenBasis * 1.05;
+      // Kita-Kosten: erst ab kitaStart, ab Alter 3 reduziert (Ü3-Platz meist günstiger)
+      let kitaKosten = 0;
+      if (alter >= v.kitaStart) {
+        kitaKosten = alter < 36 ? v.kita : v.kita * 0.6;
+      }
+      let k = basis + kitaKosten;
       if (alter === 0) k += idx === 0 ? v.erst : v.erst * 0.5;
       kosten += k;
     });
@@ -1463,6 +1517,7 @@ function render() {
   $('ezMutterVal').textContent = v.ezM + ' Monat' + (v.ezM === 1 ? '' : 'e');
   $('ezVaterVal').textContent = v.ezV + ' Monat' + (v.ezV === 1 ? '' : 'e');
   $('kostenKindVal').textContent = fmt(v.kostenBasis) + ' €';
+  $('kitaStartVal').textContent = v.kitaStart;
   $('abstand2Val').textContent = v.ab2;
   $('abstand3Val').textContent = v.ab3;
   $('arbMutterVal').textContent = Math.round(v.arbM * 100);
@@ -1614,13 +1669,41 @@ function render() {
 
   // Chart
   renderChart(monate, births, ref);
-  // Stat-Kacheln im Chart-Panel
+
+  // ===== STAT-KACHELN: Für echte Kinderplanung =====
+
+  // 1. Euer Einkommen (Durchschnitt mit Kind)
   $('statAvg').textContent = fmtSigned(avg) + ' €';
-  $('statMax').textContent = fmtSigned(Math.max(...nettos)) + ' €';
-  $('statMin').textContent = fmtSigned(Math.min(...nettos)) + ' €';
-  const sumEl = $('statSum');
-  sumEl.textContent = fmtSigned(sum) + ' €';
-  sumEl.classList.toggle('neg', sum < 0);
+
+  // 2. Das Kind kostet euch gesamt = Gehaltsverlust + alle Kinderkosten
+  //    über 5 Jahre. Diese Zahl beantwortet: "Wie teuer ist ein Kind für uns?"
+  const refGesamt = ref * N;
+  const gesamtkosten = refGesamt - sum;
+  $('statLoss').textContent = fmt(gesamtkosten) + ' €';
+  const proJahr = Math.round(gesamtkosten / 5);
+  $('statLossSub').textContent = `≈ ${fmt(proJahr)} € pro Jahr`;
+
+  // 3. Rücklage-Empfehlung: Wie viel Polster brauchen wir, um Monate unter
+  //    Durchschnitt auf Durchschnitt aufzufüllen? Das ist eine Zahl, mit der
+  //    man konkret sparen kann.
+  let polsterBedarf = 0;
+  let engeMonate = 0;
+  for (const n of nettos) {
+    if (n < avg) {
+      polsterBedarf += (avg - n);
+      engeMonate++;
+    }
+  }
+  // Auf nächste 500 runden
+  const polsterGerundet = Math.ceil(polsterBedarf / 500) * 500;
+  $('statReserve').textContent = fmt(polsterGerundet) + ' €';
+  $('statReserveSub').textContent = `${engeMonate} Monate unter Ø`;
+
+  // 4. Kinderkosten gesamt (Basis + Kita + Erstausstattung)
+  const kinderkostenGesamt = monate.reduce((a, m) => a + m.kosten, 0);
+  $('statKids').textContent = fmt(kinderkostenGesamt) + ' €';
+  const proMonatKost = Math.round(kinderkostenGesamt / N);
+  $('statKidsSub').textContent = `Ø ${fmt(proMonatKost)} € pro Monat`;
 }
 
 // ====== CHART ======
@@ -1882,6 +1965,27 @@ INP.abstand2.addEventListener('input', () => {
   if (parseInt(INP.abstand3.value) <= ab2) {
     INP.abstand3.value = Math.min(60, ab2 + 1);
   }
+});
+
+// Kita-Start: Slider und Zahlenfeld synchron halten
+INP.kitaStart.addEventListener('input', () => {
+  INP.kitaStartInput.value = INP.kitaStart.value;
+  // render() läuft bereits durch den generischen Listener
+});
+INP.kitaStartInput.addEventListener('input', () => {
+  let v = parseInt(INP.kitaStartInput.value);
+  if (isNaN(v)) return;
+  v = Math.max(0, Math.min(36, v));
+  INP.kitaStart.value = v;
+  render();
+});
+INP.kitaStartInput.addEventListener('change', () => {
+  let v = parseInt(INP.kitaStartInput.value);
+  if (isNaN(v)) v = 12;
+  v = Math.max(0, Math.min(36, v));
+  INP.kitaStartInput.value = v;
+  INP.kitaStart.value = v;
+  render();
 });
 
 // View-Switcher
