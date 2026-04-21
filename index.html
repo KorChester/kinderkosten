@@ -27,7 +27,10 @@
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { -webkit-text-size-adjust: 100%; }
-  html, body { margin: 0; padding: 0; overflow-x: hidden; }
+  html, body { margin: 0; padding: 0; }
+  @media (max-width: 700px) {
+    html, body { overflow-x: hidden; }
+  }
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -46,7 +49,7 @@
 
   /* ====== LAYOUT ====== */
   .page {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 24px 24px 80px;
   }
@@ -113,7 +116,7 @@
   /* ====== GRID ====== */
   .grid {
     display: grid;
-    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-columns: 300px minmax(0, 1fr);
     gap: 32px;
     align-items: start;
   }
@@ -269,6 +272,88 @@
     font-weight: 500;
   }
 
+  /* Info-Icon + Popover */
+  .info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--ink-3);
+    color: var(--ink-3);
+    font-size: 10px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    margin-left: 5px;
+    padding: 0;
+    vertical-align: 1px;
+    transition: all 0.12s;
+    line-height: 1;
+  }
+  .info-btn:hover, .info-btn:focus {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    outline: none;
+  }
+  .info-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  .info-popover {
+    display: none;
+    position: fixed;
+    background: var(--ink);
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 320px;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    letter-spacing: -0.005em;
+    font-weight: 400;
+  }
+  .info-popover.show { display: block; }
+  .info-popover strong {
+    font-weight: 600;
+    color: #fff;
+  }
+  .info-popover .formula {
+    display: block;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin: 8px 0;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .info-popover .hint {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .info-popover-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: 99;
+  }
+  .info-popover-backdrop.show { display: block; }
+
+  @media (max-width: 500px) {
+    .info-popover { max-width: calc(100vw - 32px); font-size: 13.5px; }
+  }
+
   .warn {
     background: var(--warn-bg);
     border: 1px solid var(--warn-bd);
@@ -373,7 +458,7 @@
     width: 100%;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
-    font-size: 14px;
+    font-size: 13.5px;
   }
   table.cashflow thead {
     position: sticky;
@@ -383,11 +468,11 @@
   }
   table.cashflow th {
     text-align: right;
-    padding: 10px 10px;
-    font-size: 10.5px;
+    padding: 10px 8px;
+    font-size: 10px;
     font-weight: 600;
     color: var(--ink-3);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     border-bottom: 1px solid var(--line-2);
     white-space: nowrap;
@@ -396,7 +481,7 @@
   table.cashflow th:nth-child(2) { text-align: left; }
   
   table.cashflow td {
-    padding: 10px 10px;
+    padding: 9px 8px;
     border-bottom: 1px solid var(--line);
     text-align: right;
     white-space: nowrap;
@@ -929,7 +1014,7 @@
       <span class="dot"></span>Familien-Cashflow
       <span class="by">made by <strong>Chang</strong></span>
     </div>
-    <div class="version">v7.7</div>
+    <div class="version">v7.10</div>
   </div>
 
   <!-- HERO -->
@@ -1120,14 +1205,14 @@
 
       <!-- SUMMARY BAR -->
       <div class="sumbar">
-        <div class="sumbar-title">Monat für Monat</div>
+        <div class="sumbar-title">Monat für Monat <button class="info-btn" data-info="netto" aria-label="Erklärung zu Netto">i</button></div>
         <div class="sumbar-avg">Ø <strong id="avgVal">0 €</strong> pro Monat über 5 Jahre</div>
       </div>
 
       <!-- REFERENZ-BANNER: ohne Kind -->
       <div class="ref-banner" id="refBanner">
         <div>
-          <div class="rb-label">Ohne Kind · zum Vergleich</div>
+          <div class="rb-label">Ohne Kind · zum Vergleich <button class="info-btn" data-info="ohne-kind" aria-label="Erklärung zum Vergleichswert">i</button></div>
           <div class="rb-desc" id="refDesc">Netto-Einkommen bei gleicher Arbeitszeit, ohne Mutterschutz/Elternzeit/Kinderkosten</div>
         </div>
         <div class="rb-value">
@@ -1160,10 +1245,10 @@
                 <th>Phase</th>
                 <th class="hide-m">Mutter</th>
                 <th class="hide-m">Vater</th>
-                <th class="hide-m">Kindergeld</th>
-                <th class="hide-xs">Einn.</th>
+                <th class="hide-m">KG</th>
+                <th class="hide-xs">Ein.</th>
                 <th class="hide-xs">Kosten</th>
-                <th>Netto</th>
+                <th>Netto <button class="info-btn" data-info="netto" aria-label="Erklärung zu Netto">i</button></th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -1227,11 +1312,15 @@
     </div>
     <div class="ft-right">
       made by <strong>Chang</strong><br>
-      Version 7.7 — 2026
+      Version 7.10 — 2026
     </div>
   </footer>
 
 </div>
+
+<!-- Info-Popover (gemeinsam für alle Info-Icons) -->
+<div class="info-popover-backdrop" id="infoBackdrop"></div>
+<div class="info-popover" id="infoPopover"></div>
 
 <script>
 // Familien-Cashflow v3.0 — made by Chang
@@ -2018,6 +2107,95 @@ $('resetBtn').addEventListener('click', () => {
 });
 
 render();
+
+// ===== INFO-POPOVER =====
+const INFO_TEXTS = {
+  'netto': `
+    <strong>Netto — was wirklich übrigbleibt</strong>
+    <span class="formula">Mutter + Vater + Kindergeld − Kinderkosten</span>
+    Das ist das Geld, das euch monatlich zum Leben bleibt: für Miete, Essen, Auto, Urlaub, Sparen — alles außer den direkten Kinderkosten.
+    <span class="hint">Im 1. Monat oft niedriger, weil da die einmalige Erstausstattung drinsteckt.</span>
+  `,
+  'ohne-kind': `
+    <strong>Was hättet ihr ohne Kind?</strong>
+    <span class="formula">Netto Mutter + Netto Vater (+ Nebenjobs)</span>
+    Beide würden voll weiterarbeiten, keine Elternzeit, keine Kinderkosten. Das ist der Vergleichswert, um den finanziellen Effekt der Kinder zu sehen.
+    <span class="hint">Gerundet; ohne Steuereffekte aus Steuerklassen-Wechsel.</span>
+  `
+};
+
+const popover = $('infoPopover');
+const backdrop = $('infoBackdrop');
+let activeInfoBtn = null;
+
+function showInfo(btn, key) {
+  const text = INFO_TEXTS[key];
+  if (!text) return;
+  popover.innerHTML = text;
+  popover.classList.add('show');
+  backdrop.classList.add('show');
+
+  // Positioniere Popover unter dem Button
+  const rect = btn.getBoundingClientRect();
+  const popRect = popover.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - popRect.width / 2;
+  let top = rect.bottom + 8;
+
+  // An Viewport-Grenzen anpassen
+  const pad = 12;
+  if (left < pad) left = pad;
+  if (left + popRect.width > window.innerWidth - pad) {
+    left = window.innerWidth - popRect.width - pad;
+  }
+  // Wenn unten nicht genug Platz, oberhalb anzeigen
+  if (top + popRect.height > window.innerHeight - pad) {
+    top = rect.top - popRect.height - 8;
+  }
+  popover.style.left = left + 'px';
+  popover.style.top = top + 'px';
+
+  btn.classList.add('active');
+  activeInfoBtn = btn;
+}
+
+function hideInfo() {
+  popover.classList.remove('show');
+  backdrop.classList.remove('show');
+  if (activeInfoBtn) {
+    activeInfoBtn.classList.remove('active');
+    activeInfoBtn = null;
+  }
+}
+
+// Click-Handler für alle Info-Buttons (auch dynamisch gerenderte)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.info-btn');
+  if (btn) {
+    e.stopPropagation();
+    const key = btn.dataset.info;
+    if (activeInfoBtn === btn) {
+      hideInfo();
+    } else {
+      if (activeInfoBtn) activeInfoBtn.classList.remove('active');
+      showInfo(btn, key);
+    }
+    return;
+  }
+  // Klick außerhalb → schließen
+  if (!e.target.closest('.info-popover')) {
+    hideInfo();
+  }
+});
+
+// Escape schließt
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') hideInfo();
+});
+
+// Scroll schließt (verhindert, dass Popover "schwebt")
+window.addEventListener('scroll', hideInfo, { passive: true });
+window.addEventListener('resize', hideInfo);
+
 console.log(`Familien-Cashflow v${V} · made by Chang`);
 </script>
 
